@@ -10,34 +10,34 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 🧩 الخطوة 1: سحب المشروع من GitHub
+      # 🧩 1. سحب الكود
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ⚙️ الخطوة 2: تهيئة Node.js
+      # ⚙️ 2. إعداد Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 📦 الخطوة 3: تثبيت الحزم
+      # 📦 3. تثبيت الحزم
       - name: Install dependencies
-        working-directory: ./SPFX_DEMO_2
+        working-directory: .
         run: npm install
 
-      # 🏗️ الخطوة 4: بناء المشروع SPFx
+      # 🏗️ 4. بناء المشروع
       - name: Build SPFx solution
-        working-directory: ./SPFX_DEMO_2
+        working-directory: .
         run: gulp bundle --ship || exit 0
 
-      # 📦 الخطوة 5: إنشاء الحزمة النهائية
+      # 📦 5. إنشاء الحزمة
       - name: Package SPFx solution
-        working-directory: ./SPFX_DEMO_2
+        working-directory: .
         run: gulp package-solution --ship || exit 0
 
-      # 🔍 الخطوة 6: التحقق من وجود ملف sppkg قبل النشر
+      # 🔍 6. التحقق من وجود ملف sppkg
       - name: Verify SPFx package exists
-        working-directory: ./SPFX_DEMO_2/sharepoint/solution
+        working-directory: ./sharepoint/solution
         run: |
           echo "📦 Checking for SPFx package..."
           if (!(Test-Path *.sppkg)) {
@@ -46,11 +46,11 @@ jobs:
             Write-Host "✅ SPFx package ready for deployment."
           }
 
-      # 🧰 الخطوة 7: تثبيت CLI for Microsoft 365
+      # 🧰 7. تثبيت CLI for Microsoft 365
       - name: Install CLI for Microsoft 365
         run: npm install -g @pnp/cli-microsoft365
 
-      # 🔐 الخطوة 8: تسجيل الدخول إلى Microsoft 365 (باستخدام Secrets)
+      # 🔐 8. تسجيل الدخول إلى M365 (باستخدام secrets)
       - name: Login to Microsoft 365
         run: >
           m365 login --authType secret
@@ -58,9 +58,9 @@ jobs:
           --clientId ${{ secrets.CLIENT_ID }}
           --clientSecret ${{ secrets.CLIENT_SECRET }}
 
-      # 🚀 الخطوة 9: رفع ونشر الحزمة إلى App Catalog
+      # 🚀 9. رفع الحزمة إلى App Catalog
       - name: Upload and Deploy SPFx Package
-        working-directory: ./SPFX_DEMO_2
+        working-directory: .
         run: |
           $package = Get-ChildItem "sharepoint/solution/*.sppkg" | Select-Object -ExpandProperty FullName
           echo "🚀 Uploading $package to App Catalog..."
