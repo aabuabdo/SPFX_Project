@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/spfx-serve.schema.json",
+  "port": 4321,
+  "https": true,
+  "initialPage": "https://2327zs.sharepoint.com/sites/TEAMSITE/SitePages/ITHelpdeskHome.aspx?debugManifestsFile=https://localhost:4321/temp/manifests.js",
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://2327zs.sharepoint.com/sites/TEAMSITE/SitePages/ITHelpdeskHome.aspx",
+      "customActions": {
+        "dfb8095c-d00b-4381-8230-6107b115210c": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "testMessage": "Test message"
+          }
+        }
+      }
+    },
+    "globalLayoutExtension": {
+      "pageUrl": "https://2327zs.sharepoint.com/sites/TEAMSITE/SitePages/ITHelpdeskHome.aspx",
+      "customActions": {
+        "dfb8095c-d00b-4381-8230-6107b115210c": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "testMessage": "Test message"
+          }
+        }
+      }
+    }
+  }
+}

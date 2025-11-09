@@ -1,0 +1,120 @@
+.customQuickLinks {
+  padding: 1rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  .webpartHeader {
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.4rem;
+      color: #323130;
+      font-weight: 600;
+    }
+  }
+
+  .linkCard {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    text-decoration: none;
+    color: #323130;
+    display: flex;
+    align-items: flex-start;
+    transition: all 0.25s ease;
+    border: 1px solid #f3f2f1;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+      border-color: #0078d4;
+    }
+
+    .linkIcon {
+      font-size: 1.8rem;
+      margin-right: 0.75rem;
+    }
+
+    .linkContent {
+      flex: 1;
+
+      .linkTitle {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #0078d4;
+      }
+
+      .linkDescription {
+        font-size: 0.875rem;
+        color: #605e5c;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+
+  .noLinks {
+    text-align: center;
+    color: #605e5c;
+  }
+}
+
+/* ✅ لاحظ هون فصلنا الأنماط خارج الكلاس الرئيسي */
+
+/* ===== Grid Layout ===== */
+.linksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+/* ===== List Layout ===== */
+.linksList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.3s ease-in-out;
+
+  .linkCard {
+    flex-direction: row;
+    align-items: center;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ===== Cards Layout ===== */
+.linksCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  transition: all 0.3s ease-in-out;
+
+  .linkCard {
+    padding: 1.25rem;
+    border-radius: 14px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+.linksGrid,
+.linksList,
+.linksCards {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

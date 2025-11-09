@@ -1,0 +1,19 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "nodeVersion": "22.14.0",
+    "sdksVersions": {},
+    "version": "1.21.1",
+    "libraryName": "spfx-demo-2",
+    "libraryId": "591b8755-8f0c-4a66-ad49-8a26ab790680",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-demo-2",
+    "solutionShortDescription": "spfx-demo-2 description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "extension",
+    "extensionType": "ApplicationCustomizer"
+  }
+}

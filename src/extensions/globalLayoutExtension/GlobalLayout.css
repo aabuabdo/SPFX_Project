@@ -1,0 +1,390 @@
+/* ==================== BASE STYLES ==================== */
+.customHeader {
+  background: rgb(255, 255, 255);
+  color: #1f1f1f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 40px;
+  box-shadow: 0 4px 12px rgba(3, 179, 203, 0.15);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid rgb(3, 179, 203);
+}
+
+.customHeader.ltr {
+  direction: ltr;
+}
+
+.customHeader.rtl {
+  direction: rtl;
+}
+
+/* ==================== HEADER LEFT (LOGO) ==================== */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 119px;
+  height: auto;
+  background: white;
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(3, 179, 203, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(3, 179, 203, 0.3);
+}
+
+/* ==================== NAVIGATION LINKS ==================== */
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex: 1;
+  justify-content: center;
+}
+
+.header-links a {
+  color: #1f1f1f;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.header-links a::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: rgb(3, 179, 203);
+  transition: width 0.3s ease;
+}
+
+.header-links a:hover {
+  color: rgb(3, 179, 203);
+  background: rgba(3, 179, 203, 0.08);
+}
+
+.header-links a:hover::after {
+  width: 80%;
+}
+
+/* ==================== LANGUAGE BUTTON ==================== */
+.lang-btn {
+  background: linear-gradient(
+    135deg,
+    rgb(3, 179, 203) 0%,
+    rgb(2, 140, 159) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(3, 179, 203, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.lang-btn:hover {
+  background: linear-gradient(135deg, rgb(202, 0, 0) 0%, rgb(160, 0, 0) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(202, 0, 0, 0.4);
+}
+
+.lang-btn:active {
+  transform: translateY(0);
+}
+
+/* ==================== MOBILE MENU TOGGLE ==================== */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 1001;
+}
+
+.mobile-menu-toggle span {
+  width: 25px;
+  height: 3px;
+  background: rgb(3, 179, 203);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover span {
+  background: rgb(202, 0, 0);
+}
+
+.mobile-menu-toggle.active span {
+  background: rgb(202, 0, 0);
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* ==================== FOOTER ==================== */
+.customFooter {
+  text-align: center;
+  background: rgb(255, 255, 255);
+  color: #495057;
+  padding: 20px 10px;
+  font-size: 14px;
+  border-top: 3px solid rgb(3, 179, 203);
+  font-weight: 500;
+}
+
+/* ==================== SMOOTH SCROLL ==================== */
+html {
+  scroll-behavior: smooth;
+}
+
+.scroll-link {
+  cursor: pointer;
+}
+
+/* ==================== HIGHLIGHT ANIMATION ==================== */
+.highlight-section {
+  animation: flash 1.5s ease-out;
+  box-shadow: 0 0 20px rgba(3, 179, 203, 0.5);
+  border-radius: 8px;
+}
+
+@keyframes flash {
+  0% {
+    background-color: rgba(3, 179, 203, 0.15);
+  }
+  50% {
+    background-color: rgba(3, 179, 203, 0.25);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* ==================== HIDE SHAREPOINT DEFAULT HEADER ==================== */
+.headerRow-50 {
+  display: none !important;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .customHeader {
+    padding: 12px 25px;
+  }
+
+  .header-links {
+    gap: 15px;
+  }
+
+  .header-links a {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+}
+
+/* Mobile - Landscape and smaller tablets */
+@media (max-width: 768px) {
+  .customHeader {
+    padding: 12px 20px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+    order: 2;
+  }
+
+  .header-left {
+    order: 1;
+  }
+
+  .lang-btn {
+    order: 3;
+    padding: 6px 16px;
+    font-size: 13px;
+  }
+
+  .header-links {
+    order: 4;
+    width: 100%;
+    flex-direction: column;
+    background: white;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(3, 179, 203, 0.2);
+    border-top: 2px solid rgb(3, 179, 203);
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .header-links.active {
+    max-height: 500px;
+    opacity: 1;
+    padding: 20px;
+  }
+
+  .header-links a {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(3, 179, 203, 0.1);
+  }
+
+  .header-links a:last-child {
+    border-bottom: none;
+  }
+
+  .header-links a::after {
+    display: none;
+  }
+
+  .header-links a:hover {
+    background: rgba(3, 179, 203, 0.1);
+    border-radius: 8px;
+  }
+
+  .logo {
+    width: 90px;
+  }
+}
+
+/* Mobile - Portrait */
+@media (max-width: 480px) {
+  .customHeader {
+    padding: 10px 15px;
+  }
+
+  .logo {
+    width: 80px;
+  }
+
+  .lang-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+
+  .customFooter {
+    font-size: 12px;
+    padding: 15px 10px;
+  }
+}
+
+/* ==================== ACCESSIBILITY IMPROVEMENTS ==================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.header-links a:focus,
+.lang-btn:focus,
+.mobile-menu-toggle:focus {
+  outline: 2px solid rgb(3, 179, 203);
+  outline-offset: 2px;
+}
+
+.header-links a:focus:hover {
+  outline-color: rgb(202, 0, 0);
+}
+
+/* ==================== ADDITIONAL ACCENTS ==================== */
+/* Active link state */
+.header-links a.active {
+  color: rgb(202, 0, 0);
+  background: rgba(202, 0, 0, 0.08);
+}
+
+.header-links a.active::after {
+  width: 80%;
+  background: rgb(202, 0, 0);
+}
+
+/* Scrolled header state (optional - add via JS) */
+.customHeader.scrolled {
+  box-shadow: 0 6px 20px rgba(3, 179, 203, 0.25);
+  padding: 10px 40px;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .customHeader {
+    background: #ffffff;
+    color: #000000;
+    border-bottom-color: rgb(3, 179, 203);
+  }
+
+  .header-links a {
+    color: #000000;
+  }
+
+  .header-links a:hover {
+    color: rgb(3, 179, 203);
+    background: rgba(3, 179, 203, 0.15);
+  }
+
+  .mobile-menu-toggle span {
+    background: rgb(3, 179, 203);
+  }
+
+  .header-links {
+    background: #1a1a1a;
+  }
+
+  .customFooter {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-top-color: rgb(3, 179, 203);
+  }
+}

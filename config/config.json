@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "custom-quick-links-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/customQuickLinks/CustomQuickLinksWebPart.js",
+          "manifest": "./src/webparts/customQuickLinks/CustomQuickLinksWebPart.manifest.json"
+        }
+      ]
+    },
+    "announcement-web-part-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/announcementWebPart/AnnouncementWebPartWebPart.js",
+          "manifest": "./src/webparts/announcementWebPart/AnnouncementWebPartWebPart.manifest.json"
+        }
+      ]
+    },
+    "global-layout-extension-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/globalLayoutExtension/GlobalLayoutExtensionApplicationCustomizer.js",
+          "manifest": "./src/extensions/globalLayoutExtension/GlobalLayoutExtensionApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "CustomQuickLinksWebPartStrings": "lib/webparts/customQuickLinks/loc/{locale}.js",
+    "AnnouncementWebPartWebPartStrings": "lib/webparts/announcementWebPart/loc/{locale}.js",
+    "GlobalLayoutExtensionApplicationCustomizerStrings": "lib/extensions/globalLayoutExtension/loc/{locale}.js"
+  }
+}
