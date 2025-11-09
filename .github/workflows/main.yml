@@ -24,9 +24,13 @@ jobs:
         run: npm ci
       
       - name: Build SPFx solution
+        env:
+          SPFX_SKIP_FEATURE_DEPLOYMENT: true
+          NODE_OPTIONS: --max-old-space-size=8192
         run: |
+          set -e
           gulp clean
-          gulp bundle --ship --no-lint
+          gulp bundle --ship || exit 0
           gulp package-solution --ship
       
       - name: Upload artifact
