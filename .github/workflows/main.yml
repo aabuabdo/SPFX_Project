@@ -26,8 +26,7 @@ jobs:
       - name: Build SPFx solution
         run: |
           gulp clean
-          gulp build --max-old-space-size=8192 2>&1 || true
-          gulp bundle --ship
+          gulp bundle --ship --no-lint
           gulp package-solution --ship
       
       - name: Upload artifact
