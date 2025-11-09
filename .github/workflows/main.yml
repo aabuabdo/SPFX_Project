@@ -11,18 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🧾 سحب الكود من المستودع
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🧰 إعداد Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
+      # 📦 تثبيت الحزم
       - name: Install dependencies
         run: npm ci
 
+      # 🧱 بناء حل SPFx
       - name: Build SPFx solution
         shell: bash
         env:
@@ -37,15 +41,18 @@ jobs:
           echo "Checking for .sppkg file..."
           ls -la sharepoint/solution/
 
+      # 📤 رفع الحزمة كأرتيفاكت
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: spfx-package
           path: sharepoint/solution/*.sppkg
 
+      # 🧪 تثبيت jq لتحليل JSON
       - name: Install jq
         run: sudo apt-get install jq
 
+      # 🚀 نشر الحزمة إلى SharePoint
       - name: Deploy to SharePoint
         env:
           TENANT_URL: ${{ secrets.TENANT_URL }}
@@ -59,11 +66,8 @@ jobs:
           echo "Adding app to app catalog..."
           m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --overwrite
 
-          echo "Retrieving app ID..."
-          APP_METADATA=$(m365 spo app get --name spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --output json)
-          echo "App metadata: $APP_METADATA"
-
-          APP_ID=$(echo "$APP_METADATA" | jq -r '.UniqueId')
+          echo "Listing apps to find the correct ID..."
+          APP_ID=$(m365 spo app list --appCatalogUrl "$APP_CATALOG_URL" --output json | jq -r '.[] | select(.Name=="spfx-demo-2.sppkg") | .ID')
 
           if [ -z "$APP_ID" ] || [ "$APP_ID" == "null" ]; then
             echo "❌ Failed to retrieve appId. Check if the app was added correctly or if the name is wrong."
