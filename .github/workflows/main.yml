@@ -1,4 +1,4 @@
-name: 🧱 SPFx Build and Package CI
+name: 🚀 SPFx Build & Auto Deploy to App Catalog
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - main
 
 jobs:
-  build:
+  build-deploy:
     runs-on: windows-latest
 
     steps:
-      # 🧩 1. سحب الكود من GitHub
+      # 🧩 1. سحب الكود
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -20,43 +20,39 @@ jobs:
         with:
           node-version: 18
 
-      # 📦 3. تثبيت الحزم npm install
+      # 📦 3. تثبيت الحزم
       - name: Install dependencies
-        working-directory: .
         run: npm install
 
-      # 🏗️ 4. بناء المشروع SPFx
-      - name: Build SPFx solution
-        working-directory: .
-        continue-on-error: true # ✅ يتجاهل التحذيرات
+      # 🏗️ 4. بناء المشروع
+      - name: Build SPFx bundle
+        continue-on-error: true
         run: gulp bundle --ship
 
-      # 📦 5. إنشاء الحزمة .sppkg
+      # 📦 5. إنشاء الحزمة
       - name: Package SPFx solution
-        working-directory: .
-        continue-on-error: true # ✅ يتجاهل التحذيرات
+        continue-on-error: true
         run: gulp package-solution --ship
 
-      # 🧰 6. التحقق من الحزمة
-      - name: Verify SPFx package exists
-        working-directory: ./sharepoint/solution
-        run: |
-          echo "📦 Checking for SPFx package..."
-          if (!(Test-Path *.sppkg)) {
-            Write-Host "❌ No SPFx package found!"; exit 1
-          } else {
-            Write-Host "✅ SPFx package ready for deployment."
-          }
+      # 🧰 6. تثبيت CLI PnP
+      - name: Install PnP CLI
+        run: npm install -g @pnp/cli-microsoft365
 
-      # 📤 7. رفع الحزمة كـ Artifact
-      - name: Upload SPFx package artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SPFx_Package
-          path: sharepoint/solution/*.sppkg
-
-      # 💬 8. طباعة ملخص بالنجاح
-      - name: 🎉 Done
+      # 🔐 7. تسجيل الدخول إلى Microsoft 365 باستخدام Service Principal
+      - name: Login to Microsoft 365
         run: |
-          echo "✅ SPFx build and packaging completed successfully!"
-          echo "📦 You can download the package from the 'Artifacts' tab in GitHub Actions."
+          m365 login --authType secret --tenant ${{ secrets.TENANT_ID }} --clientId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }}
+
+      # 🚀 8. رفع الحزمة إلى App Catalog
+      - name: Upload & Deploy SPFx App
+        run: |
+          $package = Get-ChildItem "sharepoint/solution/*.sppkg" | Select-Object -ExpandProperty FullName
+          echo "📦 Uploading package: $package"
+          npx @pnp/cli-microsoft365 spo app add --filePath "$package" --appCatalogScope tenant --overwrite
+          $appName = Split-Path $package -Leaf
+          echo "🚀 Deploying app: $appName"
+          npx @pnp/cli-microsoft365 spo app deploy --name "$appName" --appCatalogScope tenant
+
+      # ✅ 9. تأكيد النجاح
+      - name: ✅ Done
+        run: echo "🎉 SPFx solution deployed successfully to App Catalog!"
