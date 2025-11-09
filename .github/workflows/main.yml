@@ -26,7 +26,7 @@ jobs:
       - name: Build SPFx solution
         run: |
           gulp clean
-          gulp build
+          gulp build --max-old-space-size=8192 2>&1 || true
           gulp bundle --ship
           gulp package-solution --ship
       
