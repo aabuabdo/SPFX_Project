@@ -42,11 +42,12 @@ jobs:
       - name: Deploy to SharePoint
         env:
           TENANT_URL: ${{ secrets.TENANT_URL }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          APP_CATALOG_URL: ${{ secrets.APP_CATALOG_URL }}
+          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           npm install -g @pnp/cli-microsoft365
-          m365 login --authType password --userName ${{ secrets.ADMIN_USERNAME }} --password ${{ secrets.ADMIN_PASSWORD }}
-          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --overwrite
-          m365 spo app deploy --name spfx-demo-2.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --skipFeatureDeployment
+          m365 login $TENANT_URL --authType password --userName $ADMIN_USERNAME --password $ADMIN_PASSWORD
+          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl $APP_CATALOG_URL --overwrite
+          m365 spo app deploy --name spfx-demo-2.sppkg --appCatalogUrl $APP_CATALOG_URL --skipFeatureDeployment
           m365 logout
