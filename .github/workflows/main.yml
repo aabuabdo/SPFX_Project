@@ -1,58 +1,49 @@
-name: 🚀 SPFx Build & Auto Deploy to App Catalog
+name: Deploy SPFx Solution
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-deploy:
-    runs-on: windows-latest
-
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
     steps:
-      # 🧩 1. سحب الكود
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # ⚙️ 2. إعداد Node.js
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-
-      # 📦 3. تثبيت الحزم
+          node-version: '22'
+          cache: 'npm'
+      
       - name: Install dependencies
-        run: npm install
-
-      # 🏗️ 4. بناء المشروع
-      - name: Build SPFx bundle
-        continue-on-error: true
-        run: gulp bundle --ship
-
-      # 📦 5. إنشاء الحزمة
-      - name: Package SPFx solution
-        continue-on-error: true
-        run: gulp package-solution --ship
-
-      # 🧰 6. تثبيت CLI PnP
-      - name: Install PnP CLI
-        run: npm install -g @pnp/cli-microsoft365
-
-      # 🔐 7. تسجيل الدخول إلى Microsoft 365 باستخدام Service Principal
-      - name: Login to Microsoft 365
+        run: npm ci
+      
+      - name: Build SPFx solution
         run: |
-          m365 login --authType secret --tenant ${{ secrets.TENANT_ID }} --clientId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }}
-
-      # 🚀 8. رفع الحزمة إلى App Catalog
-      - name: Upload & Deploy SPFx App
+          gulp clean
+          gulp build
+          gulp bundle --ship
+          gulp package-solution --ship
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: spfx-package
+          path: sharepoint/solution/*.sppkg
+      
+      - name: Deploy to SharePoint
+        env:
+          TENANT_URL: ${{ secrets.TENANT_URL }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         run: |
-          $package = Get-ChildItem "sharepoint/solution/*.sppkg" | Select-Object -ExpandProperty FullName
-          echo "📦 Uploading package: $package"
-          npx @pnp/cli-microsoft365 spo app add --filePath "$package" --appCatalogScope tenant --overwrite
-          $appName = Split-Path $package -Leaf
-          echo "🚀 Deploying app: $appName"
-          npx @pnp/cli-microsoft365 spo app deploy --name "$appName" --appCatalogScope tenant
-
-      # ✅ 9. تأكيد النجاح
-      - name: ✅ Done
-        run: echo "🎉 SPFx solution deployed successfully to App Catalog!"
+          npm install -g @pnp/cli-microsoft365
+          m365 login --authType password --userName ${{ secrets.ADMIN_USERNAME }} --password ${{ secrets.ADMIN_PASSWORD }}
+          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --overwrite
+          m365 spo app deploy --name spfx-demo-2.sppkg --appCatalogUrl ${{ secrets.APP_CATALOG_URL }} --skipFeatureDeployment
+          m365 logout
