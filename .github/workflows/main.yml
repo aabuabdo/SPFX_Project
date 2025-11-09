@@ -55,8 +55,22 @@ jobs:
         run: |
           npm install -g @pnp/cli-microsoft365
           m365 login --authType password --userName "$ADMIN_USERNAME" --password "$ADMIN_PASSWORD"
+
+          echo "Adding app to app catalog..."
           m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --overwrite
-          APP_ID=$(m365 spo app get --name spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --output json | jq -r '.UniqueId')
+
+          echo "Retrieving app ID..."
+          APP_METADATA=$(m365 spo app get --name spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --output json)
+          echo "App metadata: $APP_METADATA"
+
+          APP_ID=$(echo "$APP_METADATA" | jq -r '.UniqueId')
+
+          if [ -z "$APP_ID" ] || [ "$APP_ID" == "null" ]; then
+            echo "❌ Failed to retrieve appId. Check if the app was added correctly or if the name is wrong."
+            exit 1
+          fi
+
           echo "Deploying app with ID: $APP_ID"
           m365 spo app deploy --id "$APP_ID" --appCatalogUrl "$APP_CATALOG_URL" --skipFeatureDeployment
+
           m365 logout
