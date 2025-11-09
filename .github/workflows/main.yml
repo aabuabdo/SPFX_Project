@@ -21,24 +21,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build solution
+      - name: Build SPFx solution
         run: gulp bundle --ship
 
-      - name: Package solution
+      - name: Package SPFx solution
         run: gulp package-solution --ship
 
-      # رفع الحزمة إلى App Catalog
-      - name: Deploy SPFx package to SharePoint App Catalog
-        uses: pnp/action-cli@v3
-        with:
-          args: >
-            spo app add
-            --file-path ./sharepoint/solution/*.sppkg
-            --overwrite
-            && spo app deploy
-            --name "$(ls ./sharepoint/solution/*.sppkg | xargs -n 1 basename)"
-        env:
-          SPO_URL: ${{ secrets.SITE_URL }}
-          SPO_TENANT: ${{ secrets.TENANT_ID }}
-          SPO_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          SPO_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      # ✅ استبدل خطوة PnP CLI بهذه:
+      - name: Install CLI for Microsoft 365
+        run: npm install -g @pnp/cli-microsoft365
+
+      - name: Login to Microsoft 365 using App Registration
+        run: >
+          m365 login --authType secret
+          --tenant ${{ secrets.TENANT_ID }}
+          --clientId ${{ secrets.CLIENT_ID }}
+          --clientSecret ${{ secrets.CLIENT_SECRET }}
+
+      - name: Upload and Deploy SPFx Package to App Catalog
+        run: |
+          m365 spo app add --filePath "sharepoint/solution/*.sppkg" --appCatalogScope tenant --overwrite
+          m365 spo app deploy --name "$(ls sharepoint/solution/*.sppkg | xargs -n 1 basename)" --appCatalogScope tenant
