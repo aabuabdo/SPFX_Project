@@ -25,21 +25,25 @@ jobs:
         working-directory: .
         run: npm install
 
-      # 🏗️ 4. بناء المشروع
+      # 🏗️ 4. بناء المشروع SPFx
       - name: Build SPFx solution
         working-directory: .
         run: |
           try {
-          gulp bundle --ship
+            gulp bundle --ship
           } catch {
-          Write-Host "⚠️ Ignoring lint warnings"
+            Write-Host "⚠️ Ignoring lint warnings"
           }
-
 
       # 📦 5. إنشاء الحزمة
       - name: Package SPFx solution
         working-directory: .
-        run: gulp package-solution --ship || exit 0
+        run: |
+          try {
+            gulp package-solution --ship
+          } catch {
+            Write-Host "⚠️ Ignoring lint warnings"
+          }
 
       # 🔍 6. التحقق من وجود ملف sppkg
       - name: Verify SPFx package exists
@@ -56,7 +60,7 @@ jobs:
       - name: Install CLI for Microsoft 365
         run: npm install -g @pnp/cli-microsoft365
 
-      # 🔐 8. تسجيل الدخول إلى M365 (باستخدام secrets)
+      # 🔐 8. تسجيل الدخول
       - name: Login to Microsoft 365
         run: >
           m365 login --authType secret
@@ -64,9 +68,8 @@ jobs:
           --clientId ${{ secrets.CLIENT_ID }}
           --clientSecret ${{ secrets.CLIENT_SECRET }}
 
-      # 🚀 9. رفع الحزمة إلى App Catalog
+      # 🚀 9. نشر الحزمة إلى App Catalog
       - name: Upload and Deploy SPFx Package
-        working-directory: .
         run: |
           $package = Get-ChildItem "sharepoint/solution/*.sppkg" | Select-Object -ExpandProperty FullName
           echo "🚀 Uploading $package to App Catalog..."
