@@ -24,15 +24,18 @@ jobs:
         run: npm ci
       
       - name: Build SPFx solution
+        shell: bash
         env:
           SPFX_SKIP_FEATURE_DEPLOYMENT: true
           NODE_OPTIONS: --max-old-space-size=8192
         run: |
+          set +e
           gulp clean
-          gulp bundle --ship 2>/dev/null || gulp bundle --ship 2>&1 | grep -v "Warning - lint" || true
-          gulp package-solution --ship 2>/dev/null || gulp package-solution --ship 2>&1 | grep -v "Warning" || true
+          gulp bundle --ship
+          gulp package-solution --ship
+          set -e
           echo "Checking for .sppkg file..."
-          ls -la sharepoint/solution/ || echo "Solution folder not found"
+          ls -la sharepoint/solution/
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +51,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           npm install -g @pnp/cli-microsoft365
-          m365 login $TENANT_URL --authType password --userName $ADMIN_USERNAME --password $ADMIN_PASSWORD
-          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl $APP_CATALOG_URL --overwrite
-          m365 spo app deploy --name spfx-demo-2.sppkg --appCatalogUrl $APP_CATALOG_URL --skipFeatureDeployment
+          m365 login --authType password --userName "$ADMIN_USERNAME" --password "$ADMIN_PASSWORD"
+          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --overwrite
+          m365 spo app deploy --name spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --skipFeatureDeployment
           m365 logout
