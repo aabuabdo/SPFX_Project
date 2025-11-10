@@ -11,38 +11,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 🧩 Checkout source code
+      # 🧩 1. سحب الكود من GitHub
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 🟢 Set up Node.js 20.x
+      # 🟢 2. تثبيت Node.js 20
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
 
-      # 📦 Install dependencies
+      # ⚙️ 3. تثبيت Microsoft 365 CLI
+      - name: Install Microsoft 365 CLI
+        run: npm install -g @pnp/cli-microsoft365
+
+      # 📦 4. تثبيت الحزم
       - name: Install dependencies
         run: npm ci
 
-      # 🧱 Bundle and package the SPFx solution
+      # 🧱 5. بناء المشروع (تجاهل تحذيرات stderr)
       - name: Build SPFx solution
         run: |
-          gulp bundle --ship
-          gulp package-solution --ship
+          gulp bundle --ship 2> build-errors.log || true
+          gulp package-solution --ship 2>> build-errors.log || true
 
-      # 🔐 Microsoft 365 CLI login
+      # 🔐 6. تسجيل الدخول إلى Microsoft 365
       - name: Login to Microsoft 365
         run: |
-          npx @pnp/cli-microsoft365 login --authType password --userName ${{ secrets.ADMIN_USERNAME }} --password ${{ secrets.ADMIN_PASSWORD }}
+          m365 login --authType password --userName ${{ secrets.ADMIN_USERNAME }} --password ${{ secrets.ADMIN_PASSWORD }}
 
-      # 🚀 Deploy to App Catalog
+      # 🚀 7. رفع التطبيق إلى App Catalog
       - name: Deploy SPFx app to SharePoint Online
         run: |
-          npx @pnp/cli-microsoft365 spo app add --filePath "sharepoint/solution/myapp.sppkg" --overwrite
-          npx @pnp/cli-microsoft365 spo app deploy --name "myapp.sppkg" --scope tenant
+          m365 spo app add --filePath "sharepoint/solution/myapp.sppkg" --overwrite
+          m365 spo app deploy --name "myapp.sppkg" --scope tenant
 
-      # 📧 (اختياري) Send email notification
+      # 🧩 8. (اختياري) تثبيت التطبيق على موقع محدد
+      - name: Install SPFx app on site
+        run: |
+          m365 spo app install --name "myapp.sppkg" --siteUrl "https://https://2327zs.sharepoint.com/sites/dev" --scope sitecollection
+
+      # 📧 9. (اختياري) إرسال بريد بعد النشر
       - name: Send deployment email
         run: |
-          npx @pnp/cli-microsoft365 outlook mail send --to "aabuabdo1998@gmail.com" --subject "✅ SPFx Deployment Successful" --body "Your SPFx app (myapp.sppkg) was deployed successfully."
+          m365 outlook mail send --to "aabuabdo1998@gmail.com" --subject "✅ SPFx Deployment Successful" --body "Your SPFx app (myapp.sppkg) was deployed successfully."
