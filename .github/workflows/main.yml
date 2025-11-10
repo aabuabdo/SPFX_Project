@@ -9,32 +9,44 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     env:
       CLIMICROSOFT365_ENTRAAPPID: ${{ secrets.CLIENT_ID }}
       CLIMICROSOFT365_ENTRASECRET: ${{ secrets.CLIENT_SECRET }}
       CLIMICROSOFT365_TENANT: ${{ secrets.TENANT_ID }}
 
     steps:
+      # 🧩 1. سحب الكود من GitHub
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🟢 2. تثبيت Node.js 20
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
 
+      # ⚙️ 3. تثبيت Microsoft 365 CLI
       - name: Install Microsoft 365 CLI
         run: npm install -g @pnp/cli-microsoft365
 
+      # 📦 4. تثبيت الحزم
       - name: Install dependencies
         run: npm ci
 
-      - name: Build SPFx solution (ignore stderr warnings)
+      # 🧱 5. بناء المشروع (تجاهل تحذيرات stderr)
+      - name: Build SPFx solution
         run: |
           gulp bundle --ship 2> build-errors.log || true
           gulp package-solution --ship 2>> build-errors.log || true
 
-      # 🔐 تسجيل الدخول باستخدام Service Principal
+      # 🧾 6. فحص وجود ملف .sppkg
+      - name: Verify .sppkg file
+        run: |
+          echo "📁 Checking generated files:"
+          ls -l sharepoint/solution
+
+      # 🔐 7. تسجيل الدخول باستخدام Service Principal
       - name: Login to Microsoft 365 using Service Principal
         run: |
           m365 login --authType secret \
@@ -42,18 +54,18 @@ jobs:
             --tenant ${{ secrets.TENANT_ID }} \
             --secret ${{ secrets.CLIENT_SECRET }}
 
-      # 🚀 رفع الحل إلى App Catalog
+      # 🚀 8. رفع الحل إلى App Catalog
       - name: Deploy SPFx app to App Catalog
         run: |
-          m365 spo app add --filePath "sharepoint/solution/myapp.sppkg" --appCatalogUrl "${{ secrets.APP_CATALOG_URL }}" --overwrite
-          m365 spo app deploy --name "myapp.sppkg" --appCatalogUrl "${{ secrets.APP_CATALOG_URL }}" --scope tenant
+          m365 spo app add --filePath "sharepoint/solution/spfx-demo-2.sppkg" --appCatalogUrl "${{ secrets.APP_CATALOG_URL }}" --overwrite
+          m365 spo app deploy --name "spfx-demo-2.sppkg" --appCatalogUrl "${{ secrets.APP_CATALOG_URL }}" --scope tenant
 
-      # 🧩 تثبيت التطبيق على الموقع (اختياري)
+      # 🧩 9. تثبيت التطبيق على الموقع (اختياري)
       - name: Install SPFx app on target site
         run: |
-          m365 spo app install --name "myapp.sppkg" --siteUrl "${{ secrets.SITE_URL }}" --scope sitecollection
+          m365 spo app install --name "spfx-demo-2.sppkg" --siteUrl "${{ secrets.SITE_URL }}" --scope sitecollection
 
-      # 📧 إرسال بريد (اختياري)
-      - name: Send deployment email
+      # 📧 10. تأكيد النشر
+      - name: Notify deployment complete
         run: |
-          echo "SPFx app deployed successfully to ${{ secrets.SITE_URL }}"
+          echo "✅ SPFx app 'spfx-demo-2.sppkg' deployed successfully to ${{ secrets.SITE_URL }}"
