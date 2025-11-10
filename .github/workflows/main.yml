@@ -1,32 +1,25 @@
 name: Deploy SPFx Solution
-
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
+  workflow_dispatch
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 🧾 سحب الكود من المستودع
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # 🧰 إعداد Node.js
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-
-      # 📦 تثبيت الحزم
+      
       - name: Install dependencies
         run: npm ci
-
-      # 🧱 بناء حل SPFx
+      
       - name: Build SPFx solution
         shell: bash
         env:
@@ -40,19 +33,16 @@ jobs:
           set -e
           echo "Checking for .sppkg file..."
           ls -la sharepoint/solution/
-
-      # 📤 رفع الحزمة كأرتيفاكت
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: spfx-package
           path: sharepoint/solution/*.sppkg
-
-      # 🧪 تثبيت jq لتحليل JSON
+      
       - name: Install jq
         run: sudo apt-get install jq
-
-      # 🚀 نشر الحزمة إلى SharePoint
+      
       - name: Deploy to SharePoint
         env:
           TENANT_URL: ${{ secrets.TENANT_URL }}
@@ -61,20 +51,34 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           npm install -g @pnp/cli-microsoft365
+          
+          # Login to Microsoft 365
           m365 login --authType password --userName "$ADMIN_USERNAME" --password "$ADMIN_PASSWORD"
-
-          echo "Adding app to app catalog..."
-          m365 spo app add --filePath sharepoint/solution/spfx-demo-2.sppkg --appCatalogUrl "$APP_CATALOG_URL" --overwrite
-
+          
+          # Get the package filename
+          PACKAGE_FILE=$(ls sharepoint/solution/*.sppkg | head -1)
+          PACKAGE_NAME=$(basename "$PACKAGE_FILE")
+          
+          echo "Adding app to app catalog: $PACKAGE_NAME"
+          m365 spo app add --filePath "$PACKAGE_FILE" --appCatalogUrl "$APP_CATALOG_URL" --overwrite
+          
           echo "Listing apps to find the correct ID..."
-          APP_ID=$(m365 spo app list --appCatalogUrl "$APP_CATALOG_URL" --output json | jq -r '.[] | select(.Name=="spfx-demo-2.sppkg") | .ID')
-
+          APP_ID=$(m365 spo app list --appCatalogUrl "$APP_CATALOG_URL" --output json | jq -r '.[] | select(.Title=="'$PACKAGE_NAME'") | .ID')
+          
           if [ -z "$APP_ID" ] || [ "$APP_ID" == "null" ]; then
-            echo "❌ Failed to retrieve appId. Check if the app was added correctly or if the name is wrong."
+            echo "❌ Failed to retrieve appId. Trying alternative method..."
+            APP_ID=$(m365 spo app list --appCatalogUrl "$APP_CATALOG_URL" --output json | jq -r '.[0].ID')
+          fi
+          
+          if [ -z "$APP_ID" ] || [ "$APP_ID" == "null" ]; then
+            echo "❌ Failed to retrieve appId. Check if the app was added correctly."
+            m365 spo app list --appCatalogUrl "$APP_CATALOG_URL" --output json
             exit 1
           fi
-
-          echo "Deploying app with ID: $APP_ID"
+          
+          echo "✅ Found app ID: $APP_ID"
+          echo "Deploying app..."
           m365 spo app deploy --id "$APP_ID" --appCatalogUrl "$APP_CATALOG_URL" --skipFeatureDeployment
-
+          
+          echo "✅ Deployment completed successfully"
           m365 logout
